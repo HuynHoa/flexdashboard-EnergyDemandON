@@ -1,0 +1,74 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    
+#output: 
+#  flexdashboard::flex_dashboard:
+#    orientation: rows
+#    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(shiny)
+library(readxl)
+library(lubridate)
+library(plyr)
+library(dplyr)
+library (ggplot2)
+library(GGally)
+library(ggstatsplot)
+```
+
+
+```{r data, echo=FALSE}
+
+df_dm <- read_excel('ssc2020_hourly_demand.xlsx', sheet = 2) 
+df_wt <- read_excel('ssc2020_hourly_weather.xlsx', sheet = 2) 
+
+df_dm$Date <- format.Date(df_dm$Date, "%Y-%m-%d")
+
+df_wt$formatted_time <- as.numeric(format(df_wt$time, "%H")) + 1
+df_wt$formatted_date <- format.Date(df_wt$time, "%Y-%m-%d")
+
+df <- merge(x=df_dm, y=df_wt, by.x = c("Date", "Hour"), 
+            by.y = c("formatted_date", "formatted_time"))
+
+colnames(df)[3] <- 'Energy'
+
+test <- df[ df$Year < 2016 ,]
+#which(test$Energy<10000)
+
+df2 <- test[-c(5407, 5408, 5409, 5410, 5412, 5413, 5414, 
+             5415, 5416, 5424, 5435, 5441, 5442, 5443, 5444),]
+                    
+```
+
+Row {data-width=100}
+--------------------------------------
+### Average Hourly Energy Use From Electricity (MW)
+```{r, echo=FALSE}
+elect_bar <- round((mean(df$Energy)), digits = 0)
+valueBox(value = elect_bar,icon = "ion-ios-bolt",
+         caption = "Average Hourly Energy Demand (MW)",color = "orange")
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
